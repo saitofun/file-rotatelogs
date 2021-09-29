@@ -91,7 +91,7 @@ func New(p string, options ...Option) (*RotateLogs, error) {
 		maxAge:        maxAge,
 		pattern:       pattern,
 		rotationTime:  rotationTime,
-		rotationSize: rotationSize,
+		rotationSize:  rotationSize,
 		rotationCount: rotationCount,
 		forceNewFile:  forceNewFile,
 	}, nil
@@ -148,11 +148,14 @@ func (rl *RotateLogs) getWriter_nolock(bailOnRotateFail, useGenerationalNames bo
 	filename := baseFn
 	var forceNewFile bool
 
-	fi, err := os.Stat(rl.curFn)
 	sizeRotation := false
-	if err == nil && rl.rotationSize > 0 && rl.rotationSize <= fi.Size() {
-		forceNewFile = true
-		sizeRotation = true
+
+	if rl.rotationSize > 0 {
+		fi, err := os.Stat(rl.curFn)
+		if err == nil && rl.rotationSize <= fi.Size() {
+			forceNewFile = true
+			sizeRotation = true
+		}
 	}
 
 	if baseFn != rl.curBaseFn {
